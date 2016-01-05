@@ -11,7 +11,7 @@
 #include "TString.h"
 #include "TChain.h"
 
-#include "PicoDst.h"
+#include "V0PicoDst.h"
 
 int main( int argc, char* argv[] ) {
 
@@ -28,7 +28,7 @@ int main( int argc, char* argv[] ) {
 	  }
 
 	  //put the list into chain                                                                                                                                            
-	  TChain *t = new TChain("PicoDst");
+	  TChain *t = new TChain("V0PicoDst");
 	  TIter next(&nameList);
 	  TObjString *fileNm;
 	  int i=0;
@@ -39,9 +39,9 @@ int main( int argc, char* argv[] ) {
 	  }
 
 
-	  PicoDst *pDst = new PicoDst( t, "output.root" );
+	  V0PicoDst *pDst = new V0PicoDst( t );
 
-	  pDst->Loop( nEvents );
+	  // pDst->Loop( nEvents );
 
 
 	return 0;

@@ -4,7 +4,7 @@ project = app
 # source suffix
 source = .cpp 
 # object files to make
-objects = Engine.o StThreeVector.o StHelix.o StPhysicalHelix.o StDcaGeometry.o PicoDst.o
+objects = Engine.o StThreeVector.o StHelix.o StPhysicalHelix.o StDcaGeometry.o V0PicoDst.o
 
 sources = $(wildcard *.cpp)
 headers = $(wildcard ../include/*.h)
@@ -17,12 +17,12 @@ ROOTGLIBS     	= $(shell root-config --glibs)
 
 # Custom Project includes and libs
 # -lGui -lHtml -lGuiHtml
-includes		= -I../include -I. -I$(ROOTSYS)/include
+includes		= -I../include -I. -I$(ROOTSYS)/include -I$(JDB_LIB)/include/jdb -I$(JDB_LIB)/include 
 libraries 		= $(ROOTLIBS)
-staticLibs 		= 
+staticLibs 		= $(JDB_LIB)/lib/libJDB.a
 
-cxx 		= g++ -std=c++11 -O3
-flags 		= -Wall $(ROOTCFLAGS) $(includes) 
+cxx 		= g++ -std=c++11 -O3 -w
+flags 		= $(ROOTCFLAGS) $(includes) 
 compile 	= $(cxx) $(flags) -c 
 ldFlags  	= $(ROOTLDFLAGS) 
 
