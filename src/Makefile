@@ -4,7 +4,7 @@ project = app
 # source suffix
 source = .cpp 
 # object files to make
-objects = Engine.o StThreeVector.o StHelix.o StPhysicalHelix.o StDcaGeometry.o V0PicoDst.o
+objects = Engine.o StThreeVector.o StHelix.o StPhysicalHelix.o StDcaGeometry.o V0PicoDst.o V0Analyzer.o
 
 sources = $(wildcard *.cpp)
 headers = $(wildcard ../include/*.h)

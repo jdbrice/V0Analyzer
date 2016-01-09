@@ -46,7 +46,16 @@ void V0PicoDst::Loop()
 
 V0PicoDst::V0PicoDst(TTree *tree) : fChain(0) 
 {
+// if parameter tree is not specified (or zero), connect the file
+// used to generate this class and read the Tree.
+   if (tree == 0) {
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/Users/danielbrandenburg/bnl/local/data/Run14/v0/qa_FEDC1E1BEB54E7E3BB9494DAE005F028_99.root");
+      if (!f || !f->IsOpen()) {
+         f = new TFile("/Users/danielbrandenburg/bnl/local/data/Run14/v0/qa_FEDC1E1BEB54E7E3BB9494DAE005F028_99.root");
+      }
+      f->GetObject("V0PicoDst",tree);
 
+   }
    Init(tree);
 }
 
@@ -91,11 +100,17 @@ void V0PicoDst::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   fChain->SetBranchAddress("runId", &runId, &b_runId);
-   fChain->SetBranchAddress("cent9", &cent9, &b_cent9);
-   fChain->SetBranchAddress("cent16", &cent16, &b_cent16);
-   fChain->SetBranchAddress("eventWeight", &eventWeight, &b_eventWeight);
-   fChain->SetBranchAddress("corrRefMult", &corrRefMult, &b_corrRefMult);
+   fChain->SetBranchAddress("fUniqueID", &fUniqueID, &b_event_fUniqueID);
+   fChain->SetBranchAddress("fBits", &fBits, &b_event_fBits);
+   fChain->SetBranchAddress("bField", &bField, &b_event_bField);
+   fChain->SetBranchAddress("runId", &runId, &b_event_runId);
+   fChain->SetBranchAddress("cent9", &cent9, &b_event_cent9);
+   fChain->SetBranchAddress("cent16", &cent16, &b_event_cent16);
+   fChain->SetBranchAddress("corrRefMult", &corrRefMult, &b_event_corrRefMult);
+   fChain->SetBranchAddress("eventWeight", &eventWeight, &b_event_eventWeight);
+   fChain->SetBranchAddress("vtx.mX1", &vtx_mX1, &b_event_vtx_mX1);
+   fChain->SetBranchAddress("vtx.mX2", &vtx_mX2, &b_event_vtx_mX2);
+   fChain->SetBranchAddress("vtx.mX3", &vtx_mX3, &b_event_vtx_mX3);
    fChain->SetBranchAddress("tracks", &tracks_, &b_tracks_);
    fChain->SetBranchAddress("tracks.fUniqueID", tracks_fUniqueID, &b_tracks_fUniqueID);
    fChain->SetBranchAddress("tracks.fBits", tracks_fBits, &b_tracks_fBits);

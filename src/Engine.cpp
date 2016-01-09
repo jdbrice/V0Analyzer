@@ -1,47 +1,52 @@
 
 
+// STL
 #include <iostream>
 #include <exception>
+#include <stdlib.h> // for atoi
 
-#include "StDcaGeometry.h"
+// RooBarb
+#include "Logger.h"
+#include "LoggerConfig.h"
+#include "XmlConfig.h"
+using namespace jdb;
 
-// #include "chain.h"
-
-#include "TList.h"
-#include "TString.h"
-#include "TChain.h"
-
-#include "V0PicoDst.h"
+// Local
+	#include "V0Analyzer.h"
 
 int main( int argc, char* argv[] ) {
 
-	Int_t nEvents = stoi( argv[2] );
-	Char_t *inputFile= argv[1];
+	
+	Logger::setGlobalLogLevel( "all" );
 
+	if ( argc >= 2 ){
 
-	//read the list of files                                                                                                                                                         
-	  TList nameList;
-	  char str[2000];
-	  fstream file_op(inputFile,ios::in);
-	  while(file_op >> str){
-	    nameList.Add(new TObjString(str));
-	  }
+		try{
+			XmlConfig config( argv[ 1 ] );
+			//config.report();
 
-	  //put the list into chain                                                                                                                                            
-	  TChain *t = new TChain("V0PicoDst");
-	  TIter next(&nameList);
-	  TObjString *fileNm;
-	  int i=0;
-	  while(fileNm=( TObjString*)next()){
-	    t->AddFile(fileNm->String());
-	    cout<<i<<": "<<fileNm->String()<<endl;
-	    i++;
-	  }
+			LoggerConfig::setup( &config, "Logger" );
 
+			string fileList = "";
+			string jobPrefix = "";
 
-	  V0PicoDst *pDst = new V0PicoDst( t );
+			if ( argc >= 4 ){
+				fileList = argv[ 2 ];
+				jobPrefix = argv[ 3 ];
+			}
 
-	  // pDst->Loop( nEvents );
+			string job = config.getString( "job" );
+
+			if ( "V0Analyzer" == job ){
+				V0Analyzer v0( &config, "V0Analyzer.", fileList, jobPrefix );
+				v0.make();
+			} 
+
+		} catch ( exception &e ){
+			cout << e.what() << endl;
+		}
+
+	}
 
 
 	return 0;

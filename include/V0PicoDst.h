@@ -26,11 +26,18 @@ public :
    static const Int_t kMaxtracks = 10000;
 
    // Declaration of leaf types
+ //StPicoEvent     *event;
+   UInt_t          fUniqueID;
+   UInt_t          fBits;
+   Int_t           bField;
    Int_t           runId;
    Char_t          cent9;
    Char_t          cent16;
-   Float_t         eventWeight;
    Float_t         corrRefMult;
+   Float_t         eventWeight;
+   Double_t        vtx_mX1;
+   Double_t        vtx_mX2;
+   Double_t        vtx_mX3;
    Int_t           tracks_;
    UInt_t          tracks_fUniqueID[kMaxtracks];   //[tracks_]
    UInt_t          tracks_fBits[kMaxtracks];   //[tracks_]
@@ -52,11 +59,17 @@ public :
    Int_t           nTracks;
 
    // List of branches
-   TBranch        *b_runId;   //!
-   TBranch        *b_cent9;   //!
-   TBranch        *b_cent16;   //!
-   TBranch        *b_eventWeight;   //!
-   TBranch        *b_corrRefMult;   //!
+   TBranch        *b_event_fUniqueID;   //!
+   TBranch        *b_event_fBits;   //!
+   TBranch        *b_event_bField;   //!
+   TBranch        *b_event_runId;   //!
+   TBranch        *b_event_cent9;   //!
+   TBranch        *b_event_cent16;   //!
+   TBranch        *b_event_corrRefMult;   //!
+   TBranch        *b_event_eventWeight;   //!
+   TBranch        *b_event_vtx_mX1;   //!
+   TBranch        *b_event_vtx_mX2;   //!
+   TBranch        *b_event_vtx_mX3;   //!
    TBranch        *b_tracks_;   //!
    TBranch        *b_tracks_fUniqueID;   //!
    TBranch        *b_tracks_fBits;   //!

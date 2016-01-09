@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+
+# data
+*.pdf
+*.root
