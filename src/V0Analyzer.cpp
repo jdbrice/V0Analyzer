@@ -241,7 +241,7 @@ bool V0Analyzer::keepTrack( int iTrack ){
 
     
     // DCA cut
-    if( plc.helix.distance( vtx ) < cuts[ "dcaDaughterMag" ]->min  ) return false;
+    if( plc.helix.distance( vtx ) < cuts[ "dcaDaughterMag" ]->min / pow( plc.p.mag(), 1.5 )   ) return false;
 
     book->fill( "origin", dcaGeom.origin().magnitude() );
     book->fill( "vd_p", plc.p.mag(), plc.helix.distance( vtx ) );
