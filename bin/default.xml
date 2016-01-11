@@ -44,6 +44,10 @@
 			<Histo name="pvp" min_x="0" max_x="10" width_x="0.05" min_y="0" max_y="10" width_y="0.05" />
 
 			<Histo name="sig" bins_x="bins.invMass" />
+			<Histo name="sig_p" title=" ;M [GeV/c^{2}]; p [GeV/c]" bins_x="bins.invMass" bins_y="bins.mom"/>
+			<Histo name="sig_decLen" title=" ;M [GeV/c^{2}]; decay Length [cm]" bins_x="bins.invMass" bins_y="bins.decLen"/>
+			<Histo name="sig_dca" title=" ;M [GeV/c^{2}]; DCA [cm]" bins_x="bins.invMass" bins_y="bins.dca"/>
+			<Histo name="sig_point" title=" ;M [GeV/c^{2}]; point Angle" bins_x="bins.invMass" bins_y="bins.pointAngle"/>
 
 			<Histo name="sigc1" bins_x="bins.invMass" />
 			<Histo name="sigc2" bins_x="bins.invMass" />
@@ -55,25 +59,16 @@
 
 			<Histo name="piBeta" bins_x="bins.mom" min_y="0" max_y="3" width_y="0.004" />
 			<Histo name="piDedx" bins_x="bins.mom" min_y="0" max_y="10" width_y="0.004" />
+			<Histo name="piYLocal" min_x="-5.0" max_x="5.0" width_x=".01" />
 
 		</histograms>
 
-		<CutCollection>
-			<Range name="decLen" min="1.5" max="inf" />
-			<Range name="dcaMag" min="-inf" max="1.0" />
-			<Range name="pointingAngle" min="0" max="0.07" />
-			<Range name="invMass" min="0" max="4.0" />
-			<Range name="candInvMass" min="0.487" max="0.507" />
-
-		</CutCollection>
-
+		<Include url="./cuts/k0s.xml" />
 
 	</V0Analyzer>
 
-	<bins>
-		<invMass min="0" max="4" width="0.0025" />
-		<mom min="0" max="5.0" width="0.001" />
-	</bins>
+	<Include url="./bins.xml" />
+	
 
 </config>
  

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- A root node is required -->
+<!--  It can be anything <root></root>, it just has to exist -->
+<config>
+
+	<bins>
+		<invMass min="0" max="4" width="0.0025" />
+		<mom min="0" max="5.0" width="0.001" />
+		<decLen min="0" max="10" width="0.05" />
+		<dca min="0" max="10" width="0.05" />
+		<pointAngle min="0" max="1" width="0.005" />
+	</bins>
+
+</config>
+ 

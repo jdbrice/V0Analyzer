@@ -1,6 +1,6 @@
 
 # project name and executable name
-project = app
+project = ana.app
 # source suffix
 source = .cpp 
 # object files to make

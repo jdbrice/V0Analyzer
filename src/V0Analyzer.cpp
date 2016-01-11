@@ -72,7 +72,8 @@ void V0Analyzer::analyzePairs(){
 	ParticlePair* pp = nullptr;
 
 	int n = us.size();
-	for ( int iPair = 0 ; iPair < n; iPair++ ){
+
+	for ( int iPair = 0; iPair < n; iPair++ ){
 
 		pp = &us[ iPair ];
 		Particle * p1 = pp->plc1;
@@ -84,16 +85,16 @@ void V0Analyzer::analyzePairs(){
 
 
 		pp->dca = p1->posAtDCA - p2->posAtDCA;
-		pp->sVtx = p2->posAtDCA + pp->dca * 0.5;
+		pp->sVtx = p2->posAtDCA + pp->dca * 0.5; 	// secondary vertex position
+		pp->decLen = pp->sVtx - vtx;				// decay length vector
 
-		pp->decLen = pp->sVtx - vtx;
-
-		book->fill( "signc", pp->lv.M() );
+		
 
 		if ( pp->decLen.mag() < cuts[ "decLen" ]->min ) continue;
-		book->fill( "sigc1", pp->lv.M() );
 		if ( pp->dca.mag() > cuts[ "dcaMag" ]->max ) continue;
-		book->fill( "sigc2", pp->lv.M() );
+		
+
+
 
 		p1->pAtDCA = p1->helix.momentumAt( pp->pathLengths.first, pico->bField / 1000.0 * kilogauss );
 		p2->pAtDCA = p2->helix.momentumAt( pp->pathLengths.second, pico->bField / 1000.0 * kilogauss );
@@ -102,7 +103,13 @@ void V0Analyzer::analyzePairs(){
 
 		pp->pointingAngle = fabs( pp->pAtDCA.angle( pp->decLen ) );
 
+		book->fill( "sig_point", pp->lv.M(), pp->pointingAngle );
+
 		if ( pp->pointingAngle > cuts[ "pointingAngle" ]->max ) continue;
+
+		book->fill( "sig_p", pp->lv.M(), pp->pAtDCA.mag() );
+		book->fill( "sig_dca", pp->lv.M(), pp->dca.mag() );
+		book->fill( "sig_decLen", pp->lv.M(), pp->decLen.mag() );
 
 		// reset the p1 and p2 lv to use the mom at DCA
 		p1->lv.SetPtEtaPhiM( p1->pAtDCA.perp(), p1->pAtDCA.pseudoRapidity(), p1->pAtDCA.phi(), MASS_PI );
@@ -188,6 +195,7 @@ void V0Analyzer::makePairs(){
 
 bool V0Analyzer::keepTrack( int iTrack ){
 	
+	CutCollection cuts = *cc;
 	Particle plc( iTrack );
 	float fitRatio = (float)pico->tracks_mNHitsFit[ iTrack ] / pico->tracks_mNHitsPoss[ iTrack ];
 	// book->fill( "pre_nHitsFit", pico->tracks_mNHitsFit[ iTrack ] );
@@ -196,8 +204,6 @@ bool V0Analyzer::keepTrack( int iTrack ){
 	// book->fill( "pre_nHitsRatio", fitRatio );	
 
 	plc.charge = pico->tracks_mNHitsFit[iTrack] > 0 ? 1 : -1;
-
-
 
 	if ( abs(pico->tracks_mNHitsFit[ iTrack ]) < 16 )
 		return false;
@@ -219,26 +225,30 @@ bool V0Analyzer::keepTrack( int iTrack ){
 	StDcaGeometry dcaGeom;
 	dcaGeom.set(pico->tracks_mDcaParams[iTrack], pico->tracks_mDcaParams[iTrack]);
 
+	// global momentum
 	StThreeVectorD  otherP = StThreeVectorD( pico->tracks_mMomentum_fX[iTrack], pico->tracks_mMomentum_fY[iTrack], pico->tracks_mMomentum_fZ[iTrack] );
 
 	plc.helix = dcaGeom.helix();
     plc.p = plc.helix.momentum( pico->bField / 1000.0 * kilogauss  );
 
+    // global momentum versus helix momentum - should they be the same?
     book->fill( "pvp", plc.p.magnitude(), otherP.magnitude() );
+
 
     if ( plc.p.magnitude() <= 0 ) return false;
     if ( plc.p.perp() < 0.1 ) return false;
     if( fabs( plc.p.pseudoRapidity() ) > 1.0 ) return false;
 
     
-    
     // DCA cut
-    if( plc.helix.distance( vtx ) < 0.35 / pow(plc.p.mag(), 1.5 )  ) return false;
+    if( plc.helix.distance( vtx ) < cuts[ "dcaDaughterMag" ]->min  ) return false;
 
     book->fill( "origin", dcaGeom.origin().magnitude() );
     book->fill( "vd_p", plc.p.mag(), plc.helix.distance( vtx ) );
 
-    // Lorentz vector
+    // Lorentz vector using the global momentum vector
+    // Not as accurate as the momentum at DCA but it could be used as a 
+    // preliminary inv mass cut.
     plc.lv.SetPtEtaPhiM( plc.p.perp(), plc.p.pseudoRapidity(), plc.p.phi(), MASS_PI );
 
 
