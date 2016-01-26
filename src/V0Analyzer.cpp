@@ -2,22 +2,40 @@
 #include "PhysicalConstants.h"
 
 const float MASS_PI = 0.13957;
+const float MASS_P = 0.93827231;
 
-V0Analyzer::V0Analyzer( XmlConfig * config, string np, string fileList, string prefix ) : TreeAnalyzer( config, np, fileList, prefix  ){
+V0Analyzer::V0Analyzer( XmlConfig config, string np, int _jobIndex ) : TreeAnalyzer( config, np, _jobIndex  ){
+	DEBUG( classname(), "" );
 
-	pico = shared_ptr<V0PicoDst>( new V0PicoDst( chain ) );
-
-	cc = shared_ptr<CutCollection>( new CutCollection( config, np + "CutCollection" ) );
+	init( config, np, _jobIndex );
 }
 
-V0Analyzer::~V0Analyzer(){
 
+
+V0Analyzer::~V0Analyzer(){
+	DEBUG( classname(), "" );
+}
+
+void V0Analyzer::init( XmlConfig config, string nodePath, int _jobIndex ) {
+	DEBUG( classname(), "" );
+	TreeAnalyzer::init( config, nodePath, _jobIndex );
+
+	Logger::setGlobalLogLevel( config[ nodePath + ".Logger:globalLogLevel" ] );
+	Logger::setGlobalColor( true );
+
+	pico = shared_ptr<V0PicoDst>( new V0PicoDst( chain ) );
+	cc = shared_ptr<CutCollection>( new CutCollection( config, nodePath + "CutCollection" ) );
+
+	plc = ParticleType::K0S;
+
+	if ( "Lambda" == config[ nodePath + ":plc" ] || "L" == config[ nodePath + ":plc" ] || "l" == config[ nodePath + ":plc" ] )
+		plc = ParticleType::Lambda;
 }
 
 
 
 void V0Analyzer::preEventLoop(){
-
+	DEBUG( classname(), "" );
 	TreeAnalyzer::preEventLoop();
 
 	book->cd();
@@ -25,19 +43,20 @@ void V0Analyzer::preEventLoop(){
 }
 
 void V0Analyzer::postEventLoop(){
-
+	DEBUG( classname(), "" );
 }
 
 
 void V0Analyzer::analyzeEvent(){
-	DEBUG( tag, "" );
+	DEBUG( classname(), "" );
 
 	pos.clear();
 	neg.clear();
 
-
+	
 	vtx = StThreeVectorD(pico->vtx_mX1, pico->vtx_mX2, pico->vtx_mX3 );
 
+	
 	// Number of tracks
 	Int_t nTracks = pico->nTracks;
 
@@ -66,18 +85,27 @@ void V0Analyzer::analyzeEvent(){
 
 
 void V0Analyzer::analyzePairs(){
-
+	TRACE( classname(), "" );
 	CutCollection cuts = *cc;
 
 	ParticlePair* pp = nullptr;
 
 	int n = us.size();
-
+	TRACE( classname(), n << " == us.size()" );
 	for ( int iPair = 0; iPair < n; iPair++ ){
 
 		pp = &us[ iPair ];
 		Particle * p1 = pp->plc1;
 		Particle * p2 = pp->plc2;
+
+		pp->plc1->lv.SetPtEtaPhiM( pp->plc1->p.perp(), pp->plc1->p.pseudoRapidity(), pp->plc1->p.phi(), pp->plc1->mass );
+		pp->plc2->lv.SetPtEtaPhiM( pp->plc2->p.perp(), pp->plc2->p.pseudoRapidity(), pp->plc2->p.phi(), pp->plc2->mass );
+
+		pp->lv = pp->plc1->lv + pp->plc2->lv;
+
+		book->fill( "invMassUS", pp->lv.M() );
+
+		if ( !cuts[ "invMass" ]->inInclusiveRange( pp->lv.M() ) ) continue;
 
 		pp->pathLengths = p1->helix.pathLengths( pp->plc2->helix );
 		p1->posAtDCA = p1->helix.at( pp->pathLengths.first );
@@ -89,6 +117,12 @@ void V0Analyzer::analyzePairs(){
 		pp->decLen = pp->sVtx - vtx;				// decay length vector
 
 		
+
+		
+		book->fill( "dca", pp->lv.M(), pp->dca.mag() );
+		book->fill( "decLen", pp->lv.M(), pp->decLen.mag() );
+
+
 
 		if ( pp->decLen.mag() < cuts[ "decLen" ]->min ) continue;
 		if ( pp->dca.mag() > cuts[ "dcaMag" ]->max ) continue;
@@ -107,13 +141,11 @@ void V0Analyzer::analyzePairs(){
 
 		if ( pp->pointingAngle > cuts[ "pointingAngle" ]->max ) continue;
 
-		book->fill( "sig_p", pp->lv.M(), pp->pAtDCA.mag() );
-		book->fill( "sig_dca", pp->lv.M(), pp->dca.mag() );
-		book->fill( "sig_decLen", pp->lv.M(), pp->decLen.mag() );
+		
 
 		// reset the p1 and p2 lv to use the mom at DCA
-		p1->lv.SetPtEtaPhiM( p1->pAtDCA.perp(), p1->pAtDCA.pseudoRapidity(), p1->pAtDCA.phi(), MASS_PI );
-		p2->lv.SetPtEtaPhiM( p2->pAtDCA.perp(), p2->pAtDCA.pseudoRapidity(), p2->pAtDCA.phi(), MASS_PI );
+		p1->lv.SetPtEtaPhiM( p1->pAtDCA.perp(), p1->pAtDCA.pseudoRapidity(), p1->pAtDCA.phi(), pp->plc1->mass );
+		p2->lv.SetPtEtaPhiM( p2->pAtDCA.perp(), p2->pAtDCA.pseudoRapidity(), p2->pAtDCA.phi(), pp->plc2->mass );
 		pp->lv = p1->lv + p2->lv;
 
 		book->fill( "sig", pp->lv.M() );
@@ -122,18 +154,9 @@ void V0Analyzer::analyzePairs(){
 			p1->k0Candidate = true;
 			p2->k0Candidate = true;
 		}
-
-
 	}
-
-
 }
-
-
 void V0Analyzer::analyzeTrack( int iTrack ){
-
-	
-
 }
 
 bool V0Analyzer::keepEvent( ){
@@ -142,25 +165,9 @@ bool V0Analyzer::keepEvent( ){
 	return true;
 }
 
-bool V0Analyzer::keepTrackPair( ParticlePair &pair ){
-
-
-	book->fill( "invMass", pair.lv.M() );
-	
-	if ( pair.plc1->charge == pair.plc2->charge )
-		book->fill( "invMassLS", pair.lv.M() );
-	else 
-		book->fill( "invMassUS", pair.lv.M() );
-
-	if (pair.lv.M() < 0.49 || pair.lv.M() > 0.505 )
-		return false;
-
-	return true;
-}
-
 
 void V0Analyzer::makePairs(){
-	TRACE( tag, "" );
+	TRACE( classname(), "" );
 
 	CutCollection cuts = *cc;
 
@@ -169,32 +176,66 @@ void V0Analyzer::makePairs(){
 	int npos = pos.size();
 	int nneg = neg.size();
 
-	TRACE( tag, "#Pos = " << npos );
-	TRACE( tag, "#Neg = " << nneg );
+	TRACE( classname(), "#Pos = " << npos );
+	TRACE( classname(), "#Neg = " << nneg );
 
 	for ( int i = 0; i < npos; i++ ){
 		for( int j = 0; j < nneg; j++ ){
 
-			ParticlePair pp;
-
-			pp.plc1 = &pos[i];
-			pp.plc2 = &neg[j];
-
-			pp.lv = pp.plc1->lv + pp.plc2->lv;
-
-			book->fill( "invMassUS", pp.lv.M() );
-
-			if ( !cuts[ "invMass" ]->inInclusiveRange( pp.lv.M() ) ) continue;
-
-			us.push_back( pp );
+			if ( ParticleType::K0S == plc ){
+				makeK0SPair( i, j );
+			} else if ( ParticleType::Lambda == plc ){
+				makeLambdaPair( i, j );
+			}			
 
 		} // j
 	} // i
 }
 
 
+void V0Analyzer::makeK0SPair( int i, int j ){
+
+	ParticlePair pp;
+
+	pp.plc1 = &pos[i];
+	pp.plc2 = &neg[j];
+
+	pp.plc1->mass = MASS_PI;
+	pp.plc2->mass = MASS_PI;
+
+	us.push_back( pp );  
+}
+
+void V0Analyzer::makeLambdaPair( int i, int j){
+
+	ParticlePair pp1;
+
+	pp1.plc1 = &pos[i];
+	pp1.plc2 = &neg[j];
+
+	pp1.plc1->mass = MASS_P;
+	pp1.plc2->mass = MASS_PI;
+
+	us.push_back( pp1 );
+
+	ParticlePair pp2;
+
+	pp2.plc1 = &pos[i];
+	pp2.plc2 = &neg[j];
+
+	pp2.plc1->mass = MASS_PI;
+	pp2.plc2->mass = MASS_P;
+
+	us.push_back( pp2 );
+
+}
+
+
 bool V0Analyzer::keepTrack( int iTrack ){
 	
+
+	DEBUG( classname(), "" );
+
 	CutCollection cuts = *cc;
 	Particle plc( iTrack );
 	float fitRatio = (float)pico->tracks_mNHitsFit[ iTrack ] / pico->tracks_mNHitsPoss[ iTrack ];
@@ -245,12 +286,6 @@ bool V0Analyzer::keepTrack( int iTrack ){
 
     book->fill( "origin", dcaGeom.origin().magnitude() );
     book->fill( "vd_p", plc.p.mag(), plc.helix.distance( vtx ) );
-
-    // Lorentz vector using the global momentum vector
-    // Not as accurate as the momentum at DCA but it could be used as a 
-    // preliminary inv mass cut.
-    plc.lv.SetPtEtaPhiM( plc.p.perp(), plc.p.pseudoRapidity(), plc.p.phi(), MASS_PI );
-
 
 	// book->fill( "nHitsFit", pico->tracks_mNHitsFit[ iTrack ] );
 	// book->fill( "nHitsDedx", pico->tracks_mNHitsDedx[ iTrack ] );

@@ -36,10 +36,19 @@ protected:
 
 	shared_ptr<CutCollection> cc;
 
+
+	enum class ParticleType { K0S, Lambda, Phi };
+	ParticleType plc;
+
 public:
-	static constexpr auto tag = "V0Analyzer";
-	V0Analyzer( XmlConfig * config, string nodePath, string fileList ="", string jobPrefix ="" );
+	virtual const char* classname() { return "V0Analyzer"; }
+	V0Analyzer() {}
+	V0Analyzer( XmlConfig _config, string _nodePath="", int _jobIndex = -1 );
 	~V0Analyzer();
+
+	virtual void init( XmlConfig _config, string _nodePath="", int _jobIndex = -1 );
+
+	
 
 	//virtual void make()
 protected:
@@ -70,7 +79,12 @@ protected:
 	 *          False 	- Fails 1 or more selection cuts
 	 */
 	virtual bool keepTrack( Int_t iTrack );
-	virtual bool keepTrackPair( ParticlePair &pair );
+
+
+	void makeK0SPair( int i, int j);
+	void makeLambdaPair( int i, int j);
+
+
 
 };
 

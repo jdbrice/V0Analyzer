@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- A root node is required -->
+<!--  It can be anything <root></root>, it just has to exist -->
+<config>
+
+	<CutCollection>
+			<Range name="decLen" min="6.0" max="inf" />
+			<Range name="dcaDaughterMag" min="0.35" max="inf" />
+			<Range name="dcaMag" min="-inf" max="0.6" />
+			<Range name="pointingAngle" min="0" max="0.05" />
+			
+			<Range name="invMass" min="0.0" max="5.575" />
+			<Range name="candInvMass" min="0.494" max="5.50" />
+	</CutCollection>
+
+</config>
+ 

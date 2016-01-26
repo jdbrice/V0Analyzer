@@ -23,6 +23,7 @@ public:
 
 	int id;
 	char charge;
+	double mass;
 
 	StThreeVectorD p;
 	StPhysicalHelixD helix;

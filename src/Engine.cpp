@@ -9,16 +9,33 @@
 #include "Logger.h"
 #include "LoggerConfig.h"
 #include "XmlConfig.h"
+
+#include "TreeAnalyzer.h"
+#include "TaskFactory.h"
+#include "Engine.h"
+
 using namespace jdb;
 
 // Local
 	#include "V0Analyzer.h"
 
+TaskFactory::map_type* TaskFactory::trMap = nullptr;
+
 int main( int argc, char* argv[] ) {
 
-	
 	Logger::setGlobalLogLevel( "all" );
+	
+	TaskFactory::registerTaskRunner<V0Analyzer>( "V0Analyzer" );
 
+	Engine engine( argc, argv );
+
+	// TaskRunner * tr = TaskFactory::createTaskRunner( "TreeAnalyzer" );
+	// tr->run();
+
+	// TaskRunner * tr2 = TaskFactory::createTaskRunner( "TaskRunner" );
+	// tr2->run();
+
+	return 0;
 	if ( argc >= 2 ){
 
 		try{
@@ -38,8 +55,8 @@ int main( int argc, char* argv[] ) {
 			string job = config.getString( "job" );
 
 			if ( "V0Analyzer" == job ){
-				V0Analyzer v0( &config, "V0Analyzer.", fileList, jobPrefix );
-				v0.make();
+				// TaskRunner * v0 = new V0Analyzer( config, "V0Analyzer.", fileList, jobPrefix );
+				// v0->run();
 			} 
 
 		} catch ( exception &e ){

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- A root node is required -->
+<!--  It can be anything <root></root>, it just has to exist -->
+<config>
+
+	<!-- Pre Track Cuts -->
+	<Histo name="pre_nHitsFit" min_x="-50" max_x="50" width_x="1"/>
+	<Histo name="pre_nHitsDedx" min_x="0" max_x="50" width_x="1"/>
+	<Histo name="pre_nHitsPoss" min_x="0" max_x="50" width_x="1"/>
+	<Histo name="pre_nHitsRatio" min_x="0" max_x="1.1" width_x="0.01"/>
+
+	<!-- Post Track Cuts -->
+	<Histo name="nHitsFit" min_x="-50" max_x="50" width_x="1"/>
+	<Histo name="nHitsDedx" min_x="0" max_x="50" width_x="1"/>
+	<Histo name="nHitsPoss" min_x="0" max_x="50" width_x="1"/>
+	<Histo name="nHitsRatio" min_x="0" max_x="1.1" width_x="0.01"/>
+
+	<Histo name="charge" min="-1.5" max="1.5" width="1" />
+
+	<Histo name="origin" min="0" max="100" width="0.1" />
+	<Histo name="vd_p" min_x="0" max_x="10" width_x="0.1" min_y="0" max_y="200" width_y="0.1" />
+	<Histo name="pvp" min_x="0" max_x="10" width_x="0.05" min_y="0" max_y="10" width_y="0.05" />
+
+	<Histo name="sig" bins_x="bins.invMass" />
+	<Histo name="sig_p" title=" ;M [GeV/c^{2}]; p [GeV/c]" bins_x="bins.invMass" bins_y="bins.mom"/>
+	<Histo name="sig_decLen" title=" ;M [GeV/c^{2}]; decay Length [cm]" bins_x="bins.invMass" bins_y="bins.decLen"/>
+	<Histo name="sig_dca" title=" ;M [GeV/c^{2}]; DCA [cm]" bins_x="bins.invMass" bins_y="bins.dca"/>
+	<Histo name="sig_point" title=" ;M [GeV/c^{2}]; point Angle" bins_x="bins.invMass" bins_y="bins.pointAngle"/>
+
+	<Histo name="decLen" title=" ;M [GeV/c^{2}]; decay Length [cm]" bins_x="bins.invMass" bins_y="bins.decLen"/>
+	<Histo name="dca" title=" ;M [GeV/c^{2}]; DCA [cm]" bins_x="bins.invMass" bins_y="bins.dca"/>
+
+	<Histo name="sigc1" bins_x="bins.invMass" />
+	<Histo name="sigc2" bins_x="bins.invMass" />
+	<Histo name="signc" bins_x="bins.invMass" />
+	<Histo name="invMass" bins_x="bins.invMass" />
+	<Histo name="invMassLS" bins_x="bins.invMass" />
+	<Histo name="invMassUS" bins_x="bins.invMass" />
+
+
+	<Histo name="piBeta" bins_x="bins.mom" min_y="0" max_y="3" width_y="0.004" />
+	<Histo name="piDedx" bins_x="bins.mom" min_y="0" max_y="10" width_y="0.004" />
+	<Histo name="piYLocal" min_x="-5.0" max_x="5.0" width_x=".01" />
+
+</config>

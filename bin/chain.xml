@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- A root node is required -->
+<!--  It can be anything <root></root>, it just has to exist -->
+<config>
+
+	<!-- <Task name="K0S" type="V0Analyzer" config="default.xml" nodePath="V0Analyzer" /> -->
+	<Task name="Lambda" type="V0Analyzer" config="default.xml" nodePath="LambdaV0Analyzer" />
+	<!-- <Task name="K0S" type="V0Analyzer" config="" nodePath="" /> -->
+
+</config>
